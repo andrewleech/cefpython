@@ -161,17 +161,14 @@ if not FAST_FLAG:
     subprocess.call("rm -f *.o *.a", shell=True)
     subprocess.call("rm -f subprocess", shell=True)
 
-ret = subprocess.call("make -f Makefile-libcefpythonapp", shell=True)
+ret = subprocess.call("{python} setup.py build_ext --inplace {fast}"
+                      .format(python=sys.executable,
+                              fast=('--fast' if FAST_FLAG else '')), shell=True)
 if ret != 0:
-    what = input("make failed, press 'y' to continue, 'n' to stop: ")
+    what = input("subprocess build failed, press 'y' to continue, 'n' to stop: ")
     if what != "y":
         sys.exit(1)
 
-ret = subprocess.call("make -f Makefile", shell=True)
-if ret != 0:
-    what = input("make failed, press 'y' to continue, 'n' to stop: ")
-    if what != "y":
-        sys.exit(1)
 subprocess_exe = os.path.join(CEFPYTHON_BINARY, "subprocess")
 if os.path.exists("./subprocess"):
     # .copy() will also copy Permission bits
