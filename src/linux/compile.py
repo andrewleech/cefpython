@@ -114,11 +114,11 @@ CEFPYTHON_BINARY = os.path.abspath(os.path.join(BUILD_DIR,
 
 # Create directories if necessary
 if not os.path.exists(CEFPYTHON_BINARY):
-    os.mkdir(CEFPYTHON_BINARY)
+    os.makedirs(CEFPYTHON_BINARY)
 
 # Check directories
-assert os.path.exists(CEF_BINARY)
-assert os.path.exists(CEFPYTHON_BINARY)
+assert os.path.exists(CEF_BINARY), "%s missing" % CEF_BINARY
+assert os.path.exists(CEFPYTHON_BINARY), "%s missing" % CEFPYTHON_BINARY
 
 print("Compiling C++ projects")
 
