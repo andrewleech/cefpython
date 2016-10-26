@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 # Use "Extension" from Cython.Distutils so that "cython_directives" works.
 # from distutils.extension import Extension
 from Cython.Distutils import build_ext, Extension
