@@ -108,9 +108,11 @@ SUBPROCESS_DIR = os.path.abspath(os.path.join(SRC_DIR, "subprocess"))
 SETUP_DIR = os.path.abspath(os.path.join(LINUX_DIR, "setup"))
 CEFPYTHON_DIR = os.path.abspath(os.path.join(SRC_DIR, ".."))
 BUILD_DIR = os.path.abspath(os.path.join(CEFPYTHON_DIR, "build"))
-CEF_BINARY = os.path.abspath(os.path.join(BUILD_DIR, "cef_"+OS_POSTFIX2))
 CEFPYTHON_BINARY = os.path.abspath(os.path.join(BUILD_DIR,
                                                 "cefpython_"+OS_POSTFIX2))
+CEF_BINARY = os.environ.get('CEF_BINARY')
+if not CEF_BINARY or not os.path.exists(CEF_BINARY):
+    CEF_BINARY = os.path.abspath(os.path.join(BUILD_DIR, "cef_"+OS_POSTFIX2))
 
 # Create directories if necessary
 if not os.path.exists(CEFPYTHON_BINARY):
