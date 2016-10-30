@@ -131,12 +131,19 @@ print("Compiling C++ projects")
 # fails and then run the compile.py script again and this time
 # make should succeed.
 
-def run_setuptools_build():
+def run_setuptools_build_ext():
     ret = subprocess.call("{python} setup.py build_ext --inplace {fast}"
                           .format(python=sys.executable,
                                   fast=('--fast' if FAST_FLAG else '')), shell=True)
+    return check_ret(ret)
 
+def run_setuptools_build_lib():
+    ret = subprocess.call("{python} setup.py build_clib --build-clib='.' {fast}"
+                          .format(python=sys.executable,
+                                  fast=('' if FAST_FLAG else '--force')), shell=True)
+    return check_ret(ret)
 
+def check_ret(ret):
     if ret != 0:
         what = input("%s build failed, press 'y' to continue, 'n' to stop: " % os.path.basename('.'))
         if what != "y":
@@ -148,31 +155,27 @@ def run_setuptools_build():
 
 os.chdir(CPP_UTILS_DIR)
 if not FAST_FLAG:
-    subprocess.call("rm -f *.o *.a", shell=True)
+    subprocess.call("rm -rf *.o *.a build", shell=True)
 
-run_setuptools_build()
+run_setuptools_build_lib()
 
 
 # -------- CLIENT_HANDLER_DIR
 
 os.chdir(CLIENT_HANDLER_DIR)
 if not FAST_FLAG:
-    subprocess.call("rm -f *.o *.a", shell=True)
+    subprocess.call("rm -rf *.o *.a build", shell=True)
 
-ret = subprocess.call("make -f Makefile", shell=True)
-if ret != 0:
-    what = input("make failed, press 'y' to continue, 'n' to stop: ")
-    if what != "y":
-        sys.exit(1)
+run_setuptools_build_lib()
 
 # -------- SUBPROCESS_DIR
 
 os.chdir(SUBPROCESS_DIR)
 if not FAST_FLAG:
-    subprocess.call("rm -f *.o *.a", shell=True)
+    subprocess.call("rm -rf *.o *.a build", shell=True)
     subprocess.call("rm -f subprocess", shell=True)
 
-run_setuptools_build()
+run_setuptools_build_ext()
 
 subprocess_exe = os.path.join(CEFPYTHON_BINARY, "subprocess")
 if os.path.exists("./subprocess"):
@@ -217,7 +220,7 @@ print("Creating __version__.pyx file")
 with open("__version__.pyx", "w") as fo:
     fo.write('__version__ = "{}"\n'.format(VERSION))
 
-ret = run_setuptools_build()
+ret = run_setuptools_build_ext()
 
 # if DEBUG_FLAG:
 #     shutil.rmtree("./../binaries_%s/cython_debug/" % BITS,
