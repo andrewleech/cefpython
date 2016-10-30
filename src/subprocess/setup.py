@@ -6,7 +6,7 @@ import fileinput
 import subprocess
 
 from setuptools import setup
-from ext_targets import build_ext, StaticLib, Executable
+from ext_targets import build_ext, StaticLibrary, Executable
 
 COMPILE_FLAGS = ['-flto', '-std=gnu++11', '-g', '-Wall',
                           '-Werror', '-DRENDERER_PROCESS', '-static']
@@ -154,33 +154,28 @@ elif OS_POSTFIX.startswith('mac'):
     libcefpython_src.append('main_message_loop/main_message_loop_external_pump_mac.mm')
 
 
+libcefpython = StaticLibrary(
+    name='cefpython',
+    sources=[os.path.join(SUBPROCESS_DIR, src) for src in libcefpython_src],
+    include_dirs=include_dirs,
+    extra_compile_args=COMPILE_FLAGS,
+    extra_link_args=LINK_FLAGS,
+)
+
+subprocess_exec = Executable(
+    name="subprocess",
+    sources=[os.path.join(SUBPROCESS_DIR, src) for src in subprocess_src],
+    language='c++',
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    libraries=libs,
+    extra_compile_args=COMPILE_FLAGS,
+    extra_link_args=LINK_FLAGS,
+)
+
 setup(
     name='subprocess_%s' % PYTHON_VERSION,
     cmdclass={'build_ext': build_ext},
-    ext_modules=[
-        StaticLib(
-            name='cefpython',
-            output_dir='.',
-            sources=[os.path.join(SUBPROCESS_DIR, src) for src in libcefpython_src],
-            include_dirs=include_dirs,
-            extra_compile_args=COMPILE_FLAGS,
-            extra_link_args=LINK_FLAGS,
-        ),
-
-        Executable(
-            name="subprocess",
-            sources=[os.path.join(SUBPROCESS_DIR, src) for src in subprocess_src],
-            language='c++',
-            include_dirs=include_dirs,
-            library_dirs=library_dirs,
-
-            # Static libraries only. Order is important, if library A depends on B,
-            # then B must be included before A.
-            libraries=libs,
-
-            extra_compile_args=COMPILE_FLAGS,
-            extra_link_args=LINK_FLAGS,
-        )
-    ],
-    setup_requires = ['setuptools_bin_targets']
+    ext_modules=[libcefpython, subprocess_exec],
+    setup_requires = ['setuptools_bin_targets>=1.2']
 )
